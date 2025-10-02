@@ -22,10 +22,18 @@ app.options("*", cors({
   allowedHeaders: ["Content-Type","Authorization"],
 }));
 
+function mask(val = "") {
+  if (!val) return "<empty>";
+  if (val.length <= 6) return "*".repeat(val.length);
+  return `${val.slice(0, 3)}...${val.slice(-3)} (len=${val.length})`;
+}
+
 const TOKEN_ENDPOINT = process.env.TOKEN_ENDPOINT || "https://sandbox-idp.ddp.akoya.com/token";
 const CLIENT_ID = process.env.CLIENT_ID || "";
 const CLIENT_SECRET = process.env.CLIENT_SECRET || "";
 const REDIRECT_URI = process.env.REDIRECT_URI || ""; // the frontend redirect URI you registered in Akoya
+
+
 
 app.post("/exchange", async (req, res) => {
   const { code } = req.body;
@@ -38,6 +46,20 @@ app.post("/exchange", async (req, res) => {
       code,
       redirect_uri: REDIRECT_URI,
     });
+
+    console.log("=== DEBUG /exchange request ===");
+console.log("CLIENT_ID =", CLIENT_ID);
+console.log("CLIENT_SECRET =", mask(CLIENT_SECRET));
+console.log("REDIRECT_URI =", REDIRECT_URI);
+console.log("TOKEN_ENDPOINT =", TOKEN_ENDPOINT);
+console.log("Authorization Header =", "Basic " + Buffer.from(`${CLIENT_ID}:${CLIENT_SECRET}`).toString("base64"));
+console.log("Body Params =", {
+  grant_type: "authorization_code",
+  code: code ? "<present>" : "<missing>",
+  redirect_uri: REDIRECT_URI,
+});
+console.log("=== END DEBUG ===");
+
 
     const tokenResp = await fetch(TOKEN_ENDPOINT, {
       method: "POST",
