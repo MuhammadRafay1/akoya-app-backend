@@ -6,6 +6,7 @@ import bodyParser from "body-parser";
 
 const app = express();
 app.use(bodyParser.json());
+const FRONTEND_ORIGIN = process.env.FRONTEND_ORIGIN || "https://akoya-app.netlify.app";
 
 app.use(cors({
   origin: FRONTEND_ORIGIN,                // restrict to your frontend origin
