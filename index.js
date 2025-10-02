@@ -7,9 +7,18 @@ import bodyParser from "body-parser";
 const app = express();
 app.use(bodyParser.json());
 
-// Allow CORS only from your frontend origin; set FRONTEND_ORIGIN in Railway env
 app.use(cors({
-  origin: process.env.FRONTEND_ORIGIN || "*",
+  origin: FRONTEND_ORIGIN,                // restrict to your frontend origin
+  methods: ["GET","HEAD","PUT","PATCH","POST","DELETE","OPTIONS"],
+  allowedHeaders: ["Content-Type","Authorization"],
+  credentials: false,                     // set true only if you send cookies
+}));
+
+// explicitly respond to OPTIONS preflight (some middlewares/frameworks need this)
+app.options("*", cors({
+  origin: FRONTEND_ORIGIN,
+  methods: ["GET","HEAD","PUT","PATCH","POST","DELETE","OPTIONS"],
+  allowedHeaders: ["Content-Type","Authorization"],
 }));
 
 const TOKEN_ENDPOINT = process.env.TOKEN_ENDPOINT || "https://sandbox-idp.ddp.akoya.com/token";
